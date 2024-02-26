@@ -1,0 +1,145 @@
+ //this is a snake game with c programming language
+#include <stdio.h>
+#include <conio.h>
+#include <windows.h>
+
+// Function to set the cursor position in the console
+void gotoxy(int x, int y) {
+    COORD coord;
+    coord.X = x;
+    coord.Y = y;
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+}
+
+int main() {
+    // Initialize variables
+    int i, j;
+    int gameover = 0;
+    int score = 0;
+    int length = 1;
+    int head_x, head_y;
+    int fruit_x, fruit_y;
+    int gameSpeed = 100; // You can adjust this to change the game speed
+
+    // Initialize the snake coordinates
+    int snakeX[100], snakeY[100];
+    snakeX[0] = 10;
+    snakeY[0] = 5;
+
+    // Initialize the direction of the snake
+    int dir = 1; // 1 - right, 2 - left, 3 - down, 4 - up
+
+    // Set the initial fruit coordinates
+    fruit_x = rand() % 20;
+    fruit_y = rand() % 20;
+
+    // Main game loop
+    while (!gameover) {
+        // Display the game board
+        system("cls");
+
+        // Draw the boundaries
+        for (i = 0; i < 20; i++) {
+            for (j = 0; j < 20; j++) {
+                if (i == 0 || i == 19 || j == 0 || j == 19)
+                    printf("#");
+                else if (i == fruit_y && j == fruit_x)
+                    printf("F");
+                else {
+                    int isSnakeBody = 0;
+                    for (int k = 0; k < length; k++) {
+                        if (i == snakeY[k] && j == snakeX[k]) {
+                            printf("O");
+                            isSnakeBody = 1;
+                        }
+                    }
+                    if (!isSnakeBody)
+                        printf(" ");
+                }
+            }
+            printf("\n");
+        }
+
+        // Display the score
+        printf("Score: %d", score);
+
+        // Take input from the user
+        if (_kbhit()) {
+            switch (_getch()) {
+                case 'a':
+                    dir = 2;
+                    break;
+                case 'd':
+                    dir = 1;
+                    break;
+                case 's':
+                    dir = 3;
+                    break;
+                case 'w':
+                    dir = 4;
+                    break;
+                case 'x':
+                    gameover = 1;
+                    break;
+            }
+        }
+
+        // Move the snake
+        switch (dir) {
+            case 1:
+                head_x = snakeX[0] + 1;
+                head_y = snakeY[0];
+                break;
+            case 2:
+                head_x = snakeX[0] - 1;
+                head_y = snakeY[0];
+                break;
+            case 3:
+                head_x = snakeX[0];
+                head_y = snakeY[0] + 1;
+                break;
+            case 4:
+                head_x = snakeX[0];
+                head_y = snakeY[0] - 1;
+                break;
+        }
+
+        // Check for collisions
+        if (head_x == 0 || head_x == 19 || head_y == 0 || head_y == 19)
+            gameover = 1;
+
+        for (int k = 0; k < length; k++) {
+            if (head_x == snakeX[k] && head_y == snakeY[k])
+                gameover = 1;
+        }
+
+        if (head_x == fruit_x && head_y == fruit_y) {
+            // Increase the score and spawn a new fruit
+            score += 10;
+            length++;
+            fruit_x = rand() % 20;
+            fruit_y = rand() % 20;
+        }
+
+        // Move the snake body
+        for (int k = length - 1; k > 0; k--) {
+            snakeX[k] = snakeX[k - 1];
+            snakeY[k] = snakeY[k - 1];
+        }
+
+        // Update the snake heade3
+        snakeX[0] = head_x;
+        snakeY[0] = head_y;
+
+        // Pause for a short duration to control the game speed
+        Sleep(gameSpeed);
+    }
+
+    // Display game over message
+    system("cls");
+    printf("Game Over!\n");
+    printf("Your score: %d\n", score);
+
+    return 0;
+}
+
